@@ -1,0 +1,38 @@
+Short:    displays Amiga temperatures on Workbench
+Author:   marcus.gerards@gmail.com (Marcus Gerards)
+Uploader: marcus.gerards@gmail.com (Marcus Gerards)
+Type:     util/cdity
+Version:  1.1
+Architecture: m68k-amigaos
+Replaces: 
+
+
+TempMon README  16/Mar/2018
+
+
+Description:
+
+This commodity displays temperatures on the Workbench screen. It currently supports ICY cards only.
+
+ 
+Usage:
+
+Configure tooltypes and run.
+
+
+Requirements:
+
+An Amiga with Zorro-slots, ICY-I2C device and an LTC2990 temperature/voltage sensor.
+
+
+Disclaimer:
+
+This tool should by no means destroy your precious hardware, but if it does,
+then blame a cat of your choice.
+
+
+You've got questions, bugs reports, suggestions or general feedback? 
+Feel free to contact me at:
+
+marcus.gerards@gmail.com
+

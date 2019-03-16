@@ -1,0 +1,7 @@
+FROM LIB:c.o "cx.o"+"revision.o"+"TempMon.o"+"main.o"+"app.o"+"Helpers.o"
+TO "TempMon"
+LIB LIB:scm.lib
+    LIB:sc.lib LIB:amiga.lib
+VERBOSE
+DEFINE @__chkabort=@__dummy
+
