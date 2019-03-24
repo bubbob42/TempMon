@@ -29,8 +29,8 @@
 extern struct IntuitionBase *IntuitionBase;
 extern struct DosLibrary    *DOSBase;
 extern struct Library       *CxBase;
-extern struct Library        *WorkbenchBase;
-extern struct Library         *IconBase;
+extern struct Library       *WorkbenchBase;
+extern struct Library       *IconBase;
 
 extern struct MsgPort *cxport;      /* commodities messages here      */
 extern ULONG          cxsigflag;    /* signal for above               */

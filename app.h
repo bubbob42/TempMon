@@ -1,9 +1,9 @@
-/* 
+/*
         app.h (22.02.2015)
         #defines and prototypes for app.c
-        
+
         based on DevCon '90 commodities example by
-        Commodore-Amiga, Inc.   
+        Commodore-Amiga, Inc.
 */
 
 #ifndef APP_H
@@ -36,7 +36,7 @@ VOID terminate(VOID);
 /**********************************************************************/
 BOOL setupIHelp(VOID);
 VOID MyHandleCXMsg(ULONG);
-VOID   handleIMsg(struct IntuiMessage *, UBYTE);
+VOID handleIMsg(struct IntuiMessage *, UBYTE);
 
 /**********************************************************************/
 /* definitions for global variables declared in the standard modules  */
@@ -49,7 +49,7 @@ extern char                   **ttypes;
 extern struct MsgPort         *cxport;
 extern struct IntuitionBase   *IntuitionBase;
 extern BOOL                   IDCMPRefresh;
-CONST_STRPTR GetString(enum AppStringsID id);
+CONST_STRPTR GetString(int id);
 
 /**********************************************************************/
 /* definitions for global variables declared in app.c and             */
@@ -97,9 +97,9 @@ CONST_STRPTR GetString(enum AppStringsID id);
 
 
 /***********************************************************************/
-/*      TempMon functionality - 
+/*      TempMon functionality -
         supported commands' table
-        ------------------------- 
+        -------------------------
 ************************************************************************/
-#define HIDETEMP              0L
-#define DISPLAYTEMP       1L
+#define HIDETEMP        0L
+#define DISPLAYTEMP     1L

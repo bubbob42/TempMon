@@ -1,11 +1,11 @@
-/* 
+/*
         TempMon by Marcus Gerards
-        
+
         22.02.2015
-        
-        main(); based on commodities example source 
-        (C) 1990  Commodore-Amiga, Inc.  All Rights Reserved.  
-        
+
+        main(); based on commodities example source
+        (C) 1990  Commodore-Amiga, Inc.  All Rights Reserved.
+
 */
 
 
@@ -15,7 +15,8 @@
 #include "app.h"
 #include <proto/gadtools.h>
 #include <devices/timer.h>
-#include <i2c_library.h>
+#include <proto/i2c.h>
+#include "i2cdisplay.h"
 
 struct IntuitionBase    *IntuitionBase = NULL;
 struct Library          *ExpansionBase = NULL;
@@ -54,15 +55,10 @@ ULONG          isigflag  = 0;    /* signal for above                */
 
 BOOL terminate_loop = FALSE;
 
-VOID main(int,char **);
-VOID main( argc, argv )
-int  argc;
-char **argv;
+int main(int argc,char **argv)
 {
     struct Message *msg;
-    char *tt_value;  // for processing tooltypes
-    char *str; 
-         
+
     DOSBase      =(struct DosLibrary *)   OpenLibrary("dos.library",0);
     IntuitionBase=(struct IntuitionBase *)OpenLibrary("intuition.library",39);
     GfxBase      =(struct GfxBase *)      OpenLibrary("graphics.library",0);
@@ -72,16 +68,16 @@ char **argv;
     IconBase     =                        OpenLibrary("icon.library",37);
     WorkbenchBase=                        OpenLibrary("workbench.library",37);
     I2C_Base     =                        OpenLibrary("i2c.library",40);
-      
+
     if ( ! ( IntuitionBase && CxBase && DOSBase && IconBase && GfxBase && GadToolsBase && WorkbenchBase && ExpansionBase) ) {
         //Failed to open one or more libraries
         terminate();
     }
-    
-    if (I2C_Base) i2c_found = TRUE;    
-    
+
+    if (I2C_Base) i2c_found = TRUE;
+
     if (argc == 0) {             // start from Workbench?
-        
+
         #if DEBUG
         if (output = Open("CON:0/0//200/TempMon DEBUG/WAIT/CLOSE",MODE_NEWFILE)) {
             old_output = SelectOutput(output);
@@ -90,8 +86,8 @@ char **argv;
         #endif
 
         /* commodities support library function to find argv or tooltypes   */
-        ttypes = ArgArrayInit( argc, argv );
-        
+        ttypes = (char**) ArgArrayInit( argc, (CONST_STRPTR *) argv );
+
         /*
         // Fill ToolType-Settings struct *Opt
         if ((tt_value = FindToolType(ttypes, "RESPECTSCREENTITLE")) != NULL)
@@ -100,7 +96,7 @@ char **argv;
     }
     else {
         output = Output();
-        
+
         #if DEBUG
                 Printf("%s Debug output enabled!\n\n", ABOUTVER);
         #else
@@ -108,35 +104,38 @@ char **argv;
                 //terminate();
         #endif
     }
-    
+
     if (!setupCX(ttypes)) {
         terminate();
     }
-    
+
     /* fire up the timer */
     if (SetupTimerRequest()) {
-        
+
         ULONG timer_mask;
         ULONG signal_mask;
         ULONG signals;
         ULONG td_Interval = 1000;
-        
+
+        setup_displayinterface ( I2C_1602DISPLAY_ADDRESS, 2,1,0,4,5,6,7,3);
+        init_display();
+
         TempWindow(DISPLAYTEMP);
         refreshWindow();
 
-	timer_mask = 1L << TimePort->mp_SigBit;
+        timer_mask = 1L << TimePort->mp_SigBit;
 
         /* we want to get a signal at ctrl-e or every second */
-	signal_mask = SIGBREAKF_CTRL_E | timer_mask | cxsigflag | isigflag;
-	signals = 0;
+        signal_mask = SIGBREAKF_CTRL_E | timer_mask | cxsigflag | isigflag;
+        signals = 0;
 
-	TimeRequest->tr_node.io_Command	= TR_ADDREQUEST;
-	TimeRequest->tr_time.tv_secs	= 0;
+        TimeRequest->tr_node.io_Command = TR_ADDREQUEST;
+        TimeRequest->tr_time.tv_secs    = 0;
         /* user input is measured in 1/1000 s */
-	TimeRequest->tr_time.tv_micro	= td_Interval;
+        TimeRequest->tr_time.tv_micro   = td_Interval;
 
-	SendIO((struct IORequest *)TimeRequest);
-        
+        SendIO((struct IORequest *)TimeRequest);
+
 
         /* this is the main loop */
         while (!(terminate_loop)) {           /* exit by setting terminate   */
@@ -147,20 +146,20 @@ char **argv;
             else {
                 signals |= SetSignal(0,signal_mask) & signal_mask;
             }
-        
-            /* we got a signal from timer.device */                
+
+            /* we got a signal from timer.device */
             if (signals & timer_mask) {
                 if (GetMsg(TimePort) != NULL) {
                     WaitIO((struct IORequest *)TimeRequest);
-                        
+
                     /* call our little main routine */
                     refreshWindow();
 
                     /* and renew the timer request */
-                    TimeRequest->tr_node.io_Command	= TR_ADDREQUEST;
-                    TimeRequest->tr_time.tv_secs	= 0;
-                    TimeRequest->tr_time.tv_micro	= td_Interval * 4000;
-                        
+                    TimeRequest->tr_node.io_Command     = TR_ADDREQUEST;
+                    TimeRequest->tr_time.tv_secs        = 0;
+                    TimeRequest->tr_time.tv_micro       = td_Interval * 4000;
+
                     SendIO((struct IORequest *)TimeRequest);
                 }
                 signals &= ~timer_mask;
@@ -170,14 +169,14 @@ char **argv;
                 terminate_loop = TRUE;
                 signals &= ~SIGBREAKF_CTRL_E;
             }
-            
+
             while(cxport && (msg=GetMsg(cxport))) handleCxMsg(msg);
             /*
             while(iport && (msg=(struct Message *)GT_GetIMsg(iport))) {
                 #if DEBUG
                 Printf("Received IntuiMsg\n");
                 #endif
-                handleIMsg((struct IntuiMessage *)msg, 0); 
+                handleIMsg((struct IntuiMessage *)msg, 0);
             }
             */
         }
@@ -231,7 +230,7 @@ char **argv;
 *
 */
 VOID terminate() {
-    
+
     /* abort and wait for pending device requests */
     /*if (CheckIO((struct IORequest *)TimeRequest) == NULL) {
         AbortIO((struct IORequest *)TimeRequest);
@@ -242,21 +241,21 @@ VOID terminate() {
         if (TimeRequest->tr_node.io_Device != NULL) {
             CloseDevice((struct IORequest *)TimeRequest);
         }
-        
-	DeleteIORequest((struct IORequest *)TimeRequest);
-	TimeRequest = NULL;
+
+        DeleteIORequest((struct IORequest *)TimeRequest);
+        TimeRequest = NULL;
     }
     if (TimePort != NULL) {
         DeleteMsgPort(TimePort);
-	TimePort = NULL;
+        TimePort = NULL;
     }
 
-    
+
     shutdownCX();
     TempWindow(HIDETEMP);
-    
+
     ArgArrayDone();    /* cx_supp.lib function   */
-   
+
 #if DEBUG
     /* close DEBUG con - BAD CHECKING*/
 //    if (old_output && output) {
@@ -264,9 +263,9 @@ VOID terminate() {
         Close(output);
 //     }
 #endif
-    
+
     /* Close Libraries */
-    
+
     if(CxBase)          CloseLibrary(CxBase);
     if(IntuitionBase)   CloseLibrary((struct Library *)IntuitionBase);
     if(GfxBase)         CloseLibrary((struct Library *)GfxBase);
@@ -276,6 +275,6 @@ VOID terminate() {
     if(ExpansionBase)   CloseLibrary(ExpansionBase);
     if(WorkbenchBase)   CloseLibrary(WorkbenchBase);
     if(I2C_Base)        CloseLibrary(I2C_Base);
-   
+
     exit(0);
 }

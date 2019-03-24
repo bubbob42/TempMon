@@ -2,9 +2,9 @@
         app.c (22.02.2015)
         Custom commodity functions not
         directly related to TempMon-functionality
-        
-        based on app.c from DevCon '90 example 
-        by Commodore-Amiga, Inc.  
+
+        based on app.c from DevCon '90 example
+        by Commodore-Amiga, Inc.
 */
 
 #include "app.h"
@@ -87,40 +87,40 @@ VOID handleIMsg(struct IntuiMessage *msg, UBYTE port)
 {
    ULONG   msg_Class;
    UWORD   code;
-   
+
    msg_Class    = msg->Class;
    code     = msg->Code;
-   
+
    #if DEBUG
    Printf("Received a message, class %ld, code %ld\n", msg_Class, code);
    #endif
-   
+
    /*  handleIMsg() */
    GT_ReplyIMsg( (struct IntuiMessage *) msg );
-    
+
    switch ( msg_Class )
    {
-         
+
       case IDCMP_REFRESHWINDOW:
          Printf("Refreshing Window...\n");
          IDCMPRefresh=TRUE;
          refreshWindow();
          IDCMPRefresh=FALSE;
          break;
-         
+
       case IDCMP_MENUPICK:
          break;
-         
+
       case IDCMP_VANILLAKEY:
          break;
-         
+
       case IDCMP_RAWKEY:
          //handleRawKey(code);
          break;
-      
+
       case IDCMP_MOUSEBUTTONS:
          //terminate();
-      	 break;
+         break;
    }
 }
 

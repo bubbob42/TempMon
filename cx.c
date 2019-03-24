@@ -191,8 +191,7 @@ VOID handleCxMsg(struct Message *msg)
 BOOL setupCX(char **ttypes )
 {
     LONG   error;
-    char   *str; 
-    
+
     #if DEBUG 
         Printf("cx.c: setupCX() enter\n"); 
     #endif
@@ -217,7 +216,7 @@ BOOL setupCX(char **ttypes )
 
    /* Set the brokers priority from the TOOLTYPES or from default if no */
    /* TOOLTYPES are available. Set the brokers Message port.            */
-   mynb.nb_Pri  = ArgInt( ttypes, (STRPTR)PRIORITY_TOOL_TYPE, CX_DEFAULT_PRIORITY );
+   mynb.nb_Pri  = ArgInt( (CONST_STRPTR *) ttypes, (STRPTR)PRIORITY_TOOL_TYPE, CX_DEFAULT_PRIORITY );
    mynb.nb_Port = cxport;
 
    #if DEBUG 
